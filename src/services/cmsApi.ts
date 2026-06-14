@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CMSFacility } from '../types';
+import type { CMSFacility } from '../types';
 
 const CMS_API_BASE = 'https://data.cms.gov/api/3/action/datastore_search_sql';
 

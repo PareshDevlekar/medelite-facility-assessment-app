@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FacilityData, CMSFacility } from '../types';
+import type { FacilityData, CMSFacility } from '../types';
 
 interface FacilityStore {
   facilityData: FacilityData | null;

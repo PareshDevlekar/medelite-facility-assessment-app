@@ -1,19 +1,11 @@
 import jsPDF from 'jspdf';
-import { FacilityData } from '../types';
-
-const BRAND_COLOR = '#1e40af';
-const TEXT_COLOR = '#333333';
-const LIGHT_GRAY = '#f3f4f6';
+import type { FacilityData } from '../types';
 
 export const generatePDF = async (facilityData: FacilityData): Promise<void> => {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   let yPosition = 10;
-
-  // Header with branding
-  doc.setFillColor(30, 64, 175); // BRAND_COLOR
-  doc.rect(0, 0, pageWidth, 30, 'F');
 
   // Title in header
   doc.setTextColor(255, 255, 255);
@@ -42,7 +34,6 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
 
   // Facility details in two columns
   const col1X = 15;
-  const col2X = 105;
   const lineHeight = 6;
 
   // Column 1
