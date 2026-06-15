@@ -225,6 +225,24 @@ select.form-input {
   flex-shrink: 0;
 }
 
+.export-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.export-actions .export-button {
+  width: auto;
+}
+
+.export-button.secondary {
+  background-color: #374151;
+}
+
+.export-button.secondary:hover:not(:disabled) {
+  background-color: #1f2937;
+}
+
 .preview-content {
   padding: 24px;
 }
@@ -414,6 +432,11 @@ select.form-input {
 
   .export-button {
     width: 100%;
+  }
+
+  .export-actions {
+    width: 100%;
+    flex-direction: column;
   }
 
   .preview-field {

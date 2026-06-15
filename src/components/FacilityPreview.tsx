@@ -1,26 +1,39 @@
 import React from 'react';
 import { useFacilityStore } from '../store/facilityStore';
 import { generatePDF } from '../services/pdfGenerator';
+import { generateWordDocument } from '../services/wordGenerator';
 import { HospitalizationMetrics } from './HospitalizationMetrics';
 import '../styles/components.css';
 
 export const FacilityPreview: React.FC = () => {
   const { facilityData } = useFacilityStore();
-  const [exporting, setExporting] = React.useState(false);
+  const [exporting, setExporting] = React.useState<'pdf' | 'word' | null>(null);
 
   if (!facilityData) {
     return null;
   }
 
   const handleExportPDF = async () => {
-    setExporting(true);
+    setExporting('pdf');
     try {
       await generatePDF(facilityData);
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       alert('Failed to generate PDF. Please try again.');
     } finally {
-      setExporting(false);
+      setExporting(null);
+    }
+  };
+
+  const handleExportWord = async () => {
+    setExporting('word');
+    try {
+      await generateWordDocument(facilityData);
+    } catch (error) {
+      console.error('Failed to generate Word document:', error);
+      alert('Failed to generate Word document. Please try again.');
+    } finally {
+      setExporting(null);
     }
   };
 
@@ -31,13 +44,22 @@ export const FacilityPreview: React.FC = () => {
       <div className="preview-card">
         <div className="preview-header">
           <h2>Facility Summary</h2>
-          <button
-            onClick={handleExportPDF}
-            disabled={exporting}
-            className="export-button"
-          >
-            {exporting ? 'Generating PDF...' : 'Download PDF'}
-          </button>
+          <div className="export-actions">
+            <button
+              onClick={handleExportPDF}
+              disabled={exporting !== null}
+              className="export-button"
+            >
+              {exporting === 'pdf' ? 'Generating PDF...' : 'Download PDF'}
+            </button>
+            <button
+              onClick={handleExportWord}
+              disabled={exporting !== null}
+              className="export-button secondary"
+            >
+              {exporting === 'word' ? 'Generating Word...' : 'Download Word'}
+            </button>
+          </div>
         </div>
 
         <div className="preview-content">
