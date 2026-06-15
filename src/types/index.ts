@@ -1,4 +1,22 @@
-export interface FacilityData {
+export interface HospitalizationMetrics {
+  // Short-Stay (STR) Metrics
+  strHospitalization?: number;
+  strHospitalizationNationalAvg?: number;
+  strHospitalizationStateAvg?: number;
+  strEDVisit?: number;
+  strEDVisitNationalAvg?: number;
+  strEDVisitStateAvg?: number;
+  
+  // Long-Stay (LT) Metrics
+  ltHospitalization?: number;
+  ltHospitalizationNationalAvg?: number;
+  ltHospitalizationStateAvg?: number;
+  ltEDVisit?: number;
+  ltEDVisitNationalAvg?: number;
+  ltEDVisitStateAvg?: number;
+}
+
+export interface FacilityData extends HospitalizationMetrics {
   ccn: string;
   legalName: string;
   customName?: string;
@@ -19,7 +37,7 @@ export interface FacilityData {
   medicalCoverage?: string;
 }
 
-export interface CMSFacility {
+export interface CMSFacility extends HospitalizationMetrics {
   ccn: string;
   name: string;
   address: string;

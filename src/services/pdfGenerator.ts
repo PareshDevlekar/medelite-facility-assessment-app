@@ -14,6 +14,14 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   let yPosition = 35;
 
   const formatRating = (rating?: number) => rating ? `${rating}/5` : 'N/A';
+  const formatNumber = (value: number) => value.toFixed(1);
+  const formatPercent = (value?: number) => value !== undefined ? `${formatNumber(value)}%` : 'N/A';
+  const formatPerThousand = (value?: number) => value !== undefined ? formatNumber(value) : 'N/A';
+  const hasHospitalizationMetrics =
+    facilityData.strHospitalization !== undefined ||
+    facilityData.ltHospitalization !== undefined ||
+    facilityData.strEDVisit !== undefined ||
+    facilityData.ltEDVisit !== undefined;
 
   const addSectionTitle = (title: string) => {
     yPosition += 6;
@@ -72,6 +80,14 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   addRow('Previous Coverage from Medelite:', facilityData.previousCoverage ? (facilityData.previousCoverage === 'yes' ? 'Yes' : 'No') : 'N/A');
   addRow('Previous Provider Performance:', facilityData.previousPerformance);
   addRow('Medical Coverage:', facilityData.medicalCoverage);
+
+  if (hasHospitalizationMetrics) {
+    addSectionTitle('HOSPITALIZATION & ED VISIT METRICS');
+    addRow('STR Rehospitalization:', `Facility ${formatPercent(facilityData.strHospitalization)} | National ${formatPercent(facilityData.strHospitalizationNationalAvg)} | State ${formatPercent(facilityData.strHospitalizationStateAvg)}`);
+    addRow('STR ED Visits:', `Facility ${formatPercent(facilityData.strEDVisit)} | National ${formatPercent(facilityData.strEDVisitNationalAvg)} | State ${formatPercent(facilityData.strEDVisitStateAvg)}`);
+    addRow('LT Hospitalizations / 1,000 Days:', `Facility ${formatPerThousand(facilityData.ltHospitalization)} | National ${formatPerThousand(facilityData.ltHospitalizationNationalAvg)} | State ${formatPerThousand(facilityData.ltHospitalizationStateAvg)}`);
+    addRow('LT ED Visits / 1,000 Days:', `Facility ${formatPerThousand(facilityData.ltEDVisit)} | National ${formatPerThousand(facilityData.ltEDVisitNationalAvg)} | State ${formatPerThousand(facilityData.ltEDVisitStateAvg)}`);
+  }
 
   // Medicare Link Section
   doc.setFont('helvetica', 'bold');

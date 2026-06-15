@@ -151,6 +151,46 @@ select.form-input {
   cursor: pointer;
 }
 
+.metrics-input-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.metrics-input-section h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+  font-size: 18px;
+}
+
+.metrics-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.metric-input-group {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+}
+
+.metric-input-group h4 {
+  margin: 0 0 12px 0;
+  color: #1e3a8a;
+  font-size: 14px;
+}
+
+.metric-input-group label {
+  display: block;
+  margin: 10px 0 6px 0;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* Facility Preview */
 .preview-container {
   padding: 20px;
@@ -275,6 +315,91 @@ select.form-input {
   background-color: #0369a1;
 }
 
+.metrics-container {
+  margin-bottom: 24px;
+}
+
+.metrics-card {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+}
+
+.metrics-card h3 {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.metrics-section {
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.metrics-section h4 {
+  margin: 0 0 12px 0;
+  color: #1e3a8a;
+  font-size: 14px;
+}
+
+.metric-group {
+  margin-bottom: 14px;
+}
+
+.metric-group:last-child {
+  margin-bottom: 0;
+}
+
+.metric-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.metric-values {
+  display: grid;
+  gap: 6px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.value-label {
+  color: #6b7280;
+}
+
+.metric-item .value {
+  color: #111827;
+  font-weight: 600;
+}
+
+.metrics-info {
+  margin-top: 14px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.metrics-info p {
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .form-grid {
@@ -307,5 +432,10 @@ select.form-input {
 
   .rating-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metrics-grid,
+  .metrics-input-grid {
+    grid-template-columns: 1fr;
   }
 }

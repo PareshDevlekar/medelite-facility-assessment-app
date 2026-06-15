@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFacilityStore } from '../store/facilityStore';
 import { generatePDF } from '../services/pdfGenerator';
+import { HospitalizationMetrics } from './HospitalizationMetrics';
 import '../styles/components.css';
 
 export const FacilityPreview: React.FC = () => {
@@ -105,6 +106,8 @@ export const FacilityPreview: React.FC = () => {
               <span className="value">{facilityData.medicalCoverage || 'Not specified'}</span>
             </div>
           </div>
+
+          <HospitalizationMetrics />
 
           <div className="preview-section">
             <h3>Medicare Profile</h3>

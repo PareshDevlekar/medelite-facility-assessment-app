@@ -10,7 +10,7 @@ interface FacilityStore {
   setCMSData: (data: CMSFacility) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  updateManualInput: (field: keyof FacilityData, value: any) => void;
+  updateManualInput: <K extends keyof FacilityData>(field: K, value: FacilityData[K]) => void;
   reset: () => void;
 }
 

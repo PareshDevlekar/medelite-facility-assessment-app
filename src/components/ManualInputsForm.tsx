@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFacilityStore } from '../store/facilityStore';
+import type { FacilityData } from '../types';
 import '../styles/components.css';
 
 export const ManualInputsForm: React.FC = () => {
@@ -9,8 +10,13 @@ export const ManualInputsForm: React.FC = () => {
     return null;
   }
 
-  const handleChange = (field: string, value: any) => {
-    updateManualInput(field as any, value);
+  const handleChange = <K extends keyof FacilityData>(field: K, value: FacilityData[K]) => {
+    updateManualInput(field, value);
+  };
+
+  const handleNumberChange = (field: keyof FacilityData, value: string) => {
+    const numericValue = value === '' ? undefined : Number(value);
+    handleChange(field, Number.isFinite(numericValue) ? numericValue : undefined);
   };
 
   return (
@@ -39,7 +45,7 @@ export const ManualInputsForm: React.FC = () => {
               type="number"
               placeholder="e.g., 112"
               value={facilityData.currentCensus || ''}
-              onChange={(e) => handleChange('currentCensus', e.target.value ? parseInt(e.target.value) : undefined)}
+              onChange={(e) => handleNumberChange('currentCensus', e.target.value)}
               className="form-input"
             />
           </div>
@@ -74,7 +80,7 @@ export const ManualInputsForm: React.FC = () => {
             <select
               id="previousCoverage"
               value={facilityData.previousCoverage || ''}
-              onChange={(e) => handleChange('previousCoverage', e.target.value || undefined)}
+              onChange={(e) => handleChange('previousCoverage', e.target.value === 'yes' || e.target.value === 'no' ? e.target.value : undefined)}
               className="form-input"
             >
               <option value="">Select an option</option>

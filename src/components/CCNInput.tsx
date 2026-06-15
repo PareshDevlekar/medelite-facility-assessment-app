@@ -43,6 +43,18 @@ export const CCNInput: React.FC = () => {
         healthInspectionRating: data.health_inspection_rating,
         staffingRating: data.staffing_rating,
         qualityCareRating: data.quality_of_care_rating,
+        strHospitalization: data.strHospitalization,
+        strHospitalizationNationalAvg: data.strHospitalizationNationalAvg,
+        strHospitalizationStateAvg: data.strHospitalizationStateAvg,
+        strEDVisit: data.strEDVisit,
+        strEDVisitNationalAvg: data.strEDVisitNationalAvg,
+        strEDVisitStateAvg: data.strEDVisitStateAvg,
+        ltHospitalization: data.ltHospitalization,
+        ltHospitalizationNationalAvg: data.ltHospitalizationNationalAvg,
+        ltHospitalizationStateAvg: data.ltHospitalizationStateAvg,
+        ltEDVisit: data.ltEDVisit,
+        ltEDVisitNationalAvg: data.ltEDVisitNationalAvg,
+        ltEDVisitStateAvg: data.ltEDVisitStateAvg,
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch facility data';
