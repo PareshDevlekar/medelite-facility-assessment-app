@@ -5,142 +5,86 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  let yPosition = 10;
+  const marginX = 15;
+  const contentWidth = pageWidth - marginX * 2;
+  const labelWidth = 62;
+  const valueX = marginX + labelWidth;
+  const valueWidth = contentWidth - labelWidth;
+  const lineHeight = 6;
+  let yPosition = 35;
+
+  const formatRating = (rating?: number) => rating ? `${rating}/5` : 'N/A';
+
+  const addSectionTitle = (title: string) => {
+    yPosition += 6;
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, marginX, yPosition);
+    yPosition += 8;
+  };
+
+  const addRow = (label: string, value: string | number | undefined) => {
+    const displayValue = value === undefined || value === '' ? 'N/A' : String(value);
+    const wrappedValue = doc.splitTextToSize(displayValue, valueWidth);
+    const rowHeight = Math.max(lineHeight, wrappedValue.length * lineHeight);
+
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, marginX, yPosition);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(wrappedValue, valueX, yPosition);
+
+    yPosition += rowHeight;
+  };
 
   // Title in header
+  doc.setFillColor(31, 43, 68);
+  doc.rect(0, 0, pageWidth, 26, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('INFINITE — Managed by MEDELITE', 15, 12);
+  doc.text('INFINITE — Managed by MEDELITE', marginX, 12);
 
   doc.setFontSize(14);
-  doc.text('FACILITY ASSESSMENT SNAPSHOT', 15, 20);
+  doc.text('FACILITY ASSESSMENT SNAPSHOT', marginX, 20);
 
   doc.setFontSize(10);
-  doc.text(facilityData.state || '', pageWidth - 15, 12, { align: 'right' });
+  doc.text(facilityData.state || '', pageWidth - marginX, 12, { align: 'right' });
 
-  // Reset text color
-  doc.setTextColor(0, 0, 0);
-  yPosition = 35;
+  addSectionTitle('FACILITY INFORMATION');
+  addRow('Name of Facility:', facilityData.customName || facilityData.legalName);
+  addRow('Location:', `${facilityData.address}, ${facilityData.city}, ${facilityData.state} ${facilityData.zip}`);
+  addRow('EMR:', facilityData.emr);
+  addRow('Census Capacity:', facilityData.censusCapacity);
+  addRow('Current Census:', facilityData.currentCensus);
+  addRow('Type of Patient:', facilityData.patientType);
 
-  // Facility Information Section
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('FACILITY INFORMATION', 15, yPosition);
-  yPosition += 8;
+  addSectionTitle('CMS STAR RATINGS');
+  addRow('Overall Star Rating:', formatRating(facilityData.overallRating));
+  addRow('Health Inspection:', formatRating(facilityData.healthInspectionRating));
+  addRow('Staffing:', formatRating(facilityData.staffingRating));
+  addRow('Quality of Resident Care:', formatRating(facilityData.qualityCareRating));
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-
-  // Facility details in two columns
-  const col1X = 15;
-  const lineHeight = 6;
-
-  // Column 1
-  doc.setFont('helvetica', 'bold');
-  doc.text('Name of Facility:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.customName || facilityData.legalName, col1X + 35, yPosition);
-  yPosition += lineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Location:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${facilityData.address}, ${facilityData.city}, ${facilityData.state} ${facilityData.zip}`, col1X + 35, yPosition);
-  yPosition += lineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('EMR:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.emr || 'N/A', col1X + 35, yPosition);
-  yPosition += lineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Census Capacity:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.censusCapacity.toString(), col1X + 35, yPosition);
-  yPosition += lineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Current Census:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.currentCensus?.toString() || 'N/A', col1X + 35, yPosition);
-  yPosition += lineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Type of Patient:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.patientType || 'N/A', col1X + 35, yPosition);
-  yPosition += 10;
-
-  // Star Ratings Section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('CMS STAR RATINGS', 15, yPosition);
-  yPosition += 8;
-
-  doc.setFontSize(10);
-  const ratingLineHeight = 6;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Overall Star Rating:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.overallRating ? `${facilityData.overallRating}/5` : 'N/A', col1X + 35, yPosition);
-  yPosition += ratingLineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Health Inspection:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.healthInspectionRating ? `${facilityData.healthInspectionRating}/5` : 'N/A', col1X + 35, yPosition);
-  yPosition += ratingLineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Staffing:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.staffingRating ? `${facilityData.staffingRating}/5` : 'N/A', col1X + 35, yPosition);
-  yPosition += ratingLineHeight;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Quality of Resident Care:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.qualityCareRating ? `${facilityData.qualityCareRating}/5` : 'N/A', col1X + 35, yPosition);
-  yPosition += 10;
-
-  // Operational Details Section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('OPERATIONAL DETAILS', 15, yPosition);
-  yPosition += 8;
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Previous Coverage from Medelite:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.previousCoverage ? (facilityData.previousCoverage === 'yes' ? 'Yes' : 'No') : 'N/A', col1X + 35, yPosition);
-  yPosition += 6;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Previous Provider Performance:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.previousPerformance || 'N/A', col1X + 35, yPosition);
-  yPosition += 6;
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Medical Coverage:', col1X, yPosition);
-  doc.setFont('helvetica', 'normal');
-  doc.text(facilityData.medicalCoverage || 'N/A', col1X + 35, yPosition);
-  yPosition += 10;
+  addSectionTitle('OPERATIONAL DETAILS');
+  addRow('Previous Coverage from Medelite:', facilityData.previousCoverage ? (facilityData.previousCoverage === 'yes' ? 'Yes' : 'No') : 'N/A');
+  addRow('Previous Provider Performance:', facilityData.previousPerformance);
+  addRow('Medical Coverage:', facilityData.medicalCoverage);
 
   // Medicare Link Section
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('Medicare Care Compare Profile:', 15, yPosition);
+  yPosition += 6;
+  doc.text('Medicare Care Compare Profile:', marginX, yPosition);
   yPosition += 6;
 
   doc.setTextColor(0, 100, 200);
   doc.setFont('helvetica', 'normal');
   const medicareUrl = `https://www.medicare.gov/care-compare/details/nursing-home/${facilityData.ccn}`;
-  doc.textWithLink(medicareUrl, 15, yPosition, { pageNumber: 1 });
+  const wrappedUrl = doc.splitTextToSize(medicareUrl, contentWidth);
+  doc.textWithLink(wrappedUrl[0], marginX, yPosition, { url: medicareUrl });
 
   // Footer
   doc.setTextColor(150, 150, 150);
