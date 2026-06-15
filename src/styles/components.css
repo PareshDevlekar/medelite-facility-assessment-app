@@ -338,22 +338,90 @@ select.form-input {
 }
 
 .metrics-card {
-  padding: 16px;
+  padding: 18px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background-color: #f9fafb;
+  background-color: #f8fafc;
 }
 
-.metrics-card h3 {
-  margin: 0 0 16px 0;
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.metrics-header h3 {
+  margin: 0 0 4px 0;
   color: #374151;
   font-size: 16px;
   font-weight: 600;
 }
 
+.metrics-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.metrics-badge {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.metric-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.metric-summary-card {
+  display: flex;
+  min-height: 170px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.metric-summary-card h4 {
+  margin: 4px 0 0 0;
+  color: #111827;
+  font-size: 14px;
+}
+
+.metric-summary-card strong {
+  color: #1e40af;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.metric-summary-card p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.metric-audience,
+.metric-unit {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -365,9 +433,33 @@ select.form-input {
 }
 
 .metrics-section h4 {
-  margin: 0 0 12px 0;
+  margin: 0;
   color: #1e3a8a;
   font-size: 14px;
+}
+
+.chart-section {
+  min-width: 0;
+}
+
+.chart-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.chart-heading span {
+  color: #6b7280;
+  font-size: 12px;
+  text-align: right;
+}
+
+.metric-chart {
+  width: 100%;
+  min-width: 0;
+  height: 260px;
 }
 
 .metric-group {
@@ -460,5 +552,19 @@ select.form-input {
   .metrics-grid,
   .metrics-input-grid {
     grid-template-columns: 1fr;
+  }
+
+  .metrics-header,
+  .chart-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-heading span {
+    text-align: left;
+  }
+
+  .metrics-badge {
+    align-self: flex-start;
   }
 }
