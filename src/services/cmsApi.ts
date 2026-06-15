@@ -1,46 +1,26 @@
 import axios from 'axios';
 import type { CMSFacility } from '../types';
 
-const CMS_API_BASE = 'https://data.cms.gov/api/3/action/datastore_search_sql';
+// Use local backend proxy to avoid CORS issues
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 /**
- * Fetch facility data from CMS Provider Data Catalog API
- * Uses the SQL search endpoint to query by CMS Certification Number (CCN)
+ * Fetch facility data from backend API proxy
+ * The proxy handles CMS API calls server-side to avoid CORS restrictions
  */
 export const fetchFacilityFromCMS = async (ccn: string): Promise<CMSFacility> => {
   try {
-    // Query the CMS Provider of Services database for nursing homes
-    const query = `SELECT * FROM "4pf6-v853" WHERE "CMS Certification Number (CCN)" = '${ccn}' LIMIT 1`;
-    
-    const response = await axios.get(CMS_API_BASE, {
-      params: {
-        sql: query,
-      },
-      timeout: 10000,
+    const response = await axios.get(`${API_BASE}/api/facility/${ccn}`, {
+      timeout: 5000,
     });
 
-    if (response.data.result.records && response.data.result.records.length > 0) {
-      const record = response.data.result.records[0];
-      
-      return {
-        ccn: record['CMS Certification Number (CCN)'] || ccn,
-        name: record['Provider Name'] || 'Unknown Facility',
-        address: record['Street Address'] || '',
-        city: record['City'] || '',
-        state: record['State'] || '',
-        zip: record['ZIP Code'] || '',
-        certified_beds: parseInt(record['Number of Certified Beds']) || 0,
-        overall_rating: parseFloat(record['Overall Rating']) || undefined,
-        health_inspection_rating: parseFloat(record['Health Inspection Rating']) || undefined,
-        staffing_rating: parseFloat(record['Staffing Rating']) || undefined,
-        quality_of_care_rating: parseFloat(record['Quality of Care Rating']) || undefined,
-      };
-    } else {
-      throw new Error(`No facility found with CCN: ${ccn}`);
-    }
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(`Failed to fetch facility data: ${error.message}`);
+      if (error.response?.status === 404) {
+        throw new Error(`No facility found with CCN: ${ccn}`, { cause: error });
+      }
+      throw new Error(`Failed to fetch facility data: ${error.message}`, { cause: error });
     }
     throw error;
   }
