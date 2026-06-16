@@ -1,8 +1,8 @@
 import axios from 'axios';
 import type { CMSFacility } from '../types';
 
-// Use local backend proxy to avoid CORS issues
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Use the local backend proxy in development and same-origin Vercel functions in production.
+const API_BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:3001');
 const REQUEST_TIMEOUT_MS = 8000;
 
 export type FacilityLookupErrorCode =
@@ -99,7 +99,9 @@ export const fetchFacilityFromCMS = async (ccn: string): Promise<CMSFacility> =>
       if (!error.response) {
         throw new FacilityLookupError(
           'NETWORK',
-          'Could not reach the local CMS proxy. Start the backend server with npm run server, then try again.',
+          import.meta.env.PROD
+            ? 'Could not reach the CMS lookup API. Please try again in a moment.'
+            : 'Could not reach the local CMS proxy. Start the backend server with npm run server, then try again.',
           { cause: error },
         );
       }
