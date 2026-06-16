@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fetchFacilityFromCMS, isValidCCN } from '../services/cmsApi';
+import { FacilityLookupError, fetchFacilityFromCMS, isValidCCN } from '../services/cmsApi';
 import { useFacilityStore } from '../store/facilityStore';
 import '../styles/components.css';
 
@@ -9,15 +9,25 @@ export const CCNInput: React.FC = () => {
   const loading = useFacilityStore((state) => state.loading);
   const error = useFacilityStore((state) => state.error);
 
+  const normalizeCCN = (value: string) => value.replace(/\D/g, '').slice(0, 6);
+
+  const handleCCNChange = (value: string) => {
+    setCCN(normalizeCCN(value));
+    if (error) {
+      setError(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedCCN = normalizeCCN(ccn);
 
-    if (!ccn.trim()) {
+    if (!normalizedCCN) {
       setError('Please enter a CCN');
       return;
     }
 
-    if (!isValidCCN(ccn)) {
+    if (!isValidCCN(normalizedCCN)) {
       setError('Invalid CCN format. CCN must be 6 digits.');
       return;
     }
@@ -26,7 +36,7 @@ export const CCNInput: React.FC = () => {
     setError(null);
 
     try {
-      const data = await fetchFacilityFromCMS(ccn);
+      const data = await fetchFacilityFromCMS(normalizedCCN);
       setCMSData(data);
 
       // Initialize facility data with CMS data
@@ -57,8 +67,11 @@ export const CCNInput: React.FC = () => {
         ltEDVisitStateAvg: data.ltEDVisitStateAvg,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch facility data';
-      setError(errorMessage);
+      if (err instanceof FacilityLookupError) {
+        setError(err.message);
+      } else {
+        setError('Failed to fetch facility data. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,16 +89,23 @@ export const CCNInput: React.FC = () => {
             <input
               id="ccn"
               type="text"
+              inputMode="numeric"
               placeholder="e.g., 686123"
               value={ccn}
-              onChange={(e) => setCCN(e.target.value)}
+              onChange={(e) => handleCCNChange(e.target.value)}
               disabled={loading}
               className="ccn-input"
               maxLength={6}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'ccn-error' : undefined}
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div id="ccn-error" className="error-message" role="alert">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"

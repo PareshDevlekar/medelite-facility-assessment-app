@@ -41,6 +41,8 @@ const parseOptionalNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const sanitizeCCN = (value) => String(value || '').trim();
+
 const normalizeSqlRecord = (record, ccn) => ({
   ccn: record['CMS Certification Number (CCN)'] || ccn,
   name: record['Provider Name'] || 'Unknown Facility',
@@ -187,7 +189,7 @@ const fetchAverageMetrics = async (state) => {
 
 app.get('/api/facility/:ccn', async (req, res) => {
   try {
-    const { ccn } = req.params;
+    const ccn = sanitizeCCN(req.params.ccn);
 
     if (!/^\d{6}$/.test(ccn)) {
       return res.status(400).json({ error: 'Invalid CCN format' });
@@ -196,15 +198,18 @@ app.get('/api/facility/:ccn', async (req, res) => {
     console.log(`Fetching data for CCN: ${ccn}`);
 
     let facilityData = null;
+    const dataWarnings = [];
 
     try {
       facilityData = await fetchFromNursingHomeProviderInfo(ccn);
     } catch (error) {
       console.warn(`CMS Provider Data API failed for CCN ${ccn}; trying SQL API: ${error.message}`);
+      dataWarnings.push('Primary CMS provider endpoint was unavailable; fallback source used.');
       try {
         facilityData = await fetchFromSqlApi(ccn);
       } catch (sqlError) {
         console.warn(`CMS SQL API failed for CCN ${ccn}; trying POS data API: ${sqlError.message}`);
+        dataWarnings.push('Secondary CMS endpoint was unavailable; legacy provider source used.');
         facilityData = await fetchFromProviderApi(ccn);
       }
     }
@@ -223,12 +228,16 @@ app.get('/api/facility/:ccn', async (req, res) => {
         };
       } catch (metricsError) {
         console.warn(`CMS hospitalization metrics failed for CCN ${ccn}: ${metricsError.message}`);
+        dataWarnings.push('Hospitalization and ED visit metrics are temporarily unavailable.');
       }
     }
 
     if (facilityData) {
       console.log(`✓ Found facility: ${facilityData.name}`);
-      res.json(facilityData);
+      res.json({
+        ...facilityData,
+        dataWarnings,
+      });
     } else {
       console.log(`✗ No facility found with CCN: ${ccn}`);
       res.status(404).json({ error: `No facility found with CCN: ${ccn}` });

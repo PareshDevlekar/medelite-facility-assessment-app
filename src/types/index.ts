@@ -49,6 +49,7 @@ export interface CMSFacility extends HospitalizationMetrics {
   health_inspection_rating?: number;
   staffing_rating?: number;
   quality_of_care_rating?: number;
+  dataWarnings?: string[];
 }
 
 export interface ReportData extends FacilityData {

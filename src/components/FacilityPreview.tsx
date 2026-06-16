@@ -6,7 +6,7 @@ import { HospitalizationMetrics } from './HospitalizationMetrics';
 import '../styles/components.css';
 
 export const FacilityPreview: React.FC = () => {
-  const { facilityData } = useFacilityStore();
+  const { cmsData, facilityData } = useFacilityStore();
   const [exporting, setExporting] = React.useState<'pdf' | 'word' | null>(null);
 
   if (!facilityData) {
@@ -38,6 +38,10 @@ export const FacilityPreview: React.FC = () => {
   };
 
   const displayName = facilityData.customName || facilityData.legalName;
+  const hasInvalidCurrentCensus =
+    facilityData.currentCensus !== undefined &&
+    (facilityData.currentCensus < 0 || facilityData.currentCensus > facilityData.censusCapacity);
+  const exportDisabled = exporting !== null || hasInvalidCurrentCensus;
 
   return (
     <div className="preview-container">
@@ -47,20 +51,30 @@ export const FacilityPreview: React.FC = () => {
           <div className="export-actions">
             <button
               onClick={handleExportPDF}
-              disabled={exporting !== null}
+              disabled={exportDisabled}
               className="export-button"
             >
               {exporting === 'pdf' ? 'Generating PDF...' : 'Download PDF'}
             </button>
             <button
               onClick={handleExportWord}
-              disabled={exporting !== null}
+              disabled={exportDisabled}
               className="export-button secondary"
             >
               {exporting === 'word' ? 'Generating Word...' : 'Download Word'}
             </button>
           </div>
         </div>
+        {hasInvalidCurrentCensus && (
+          <div className="warning-message" role="alert">
+            Fix Current Census before exporting. It must be between 0 and {facilityData.censusCapacity}.
+          </div>
+        )}
+        {cmsData?.dataWarnings?.map((warning) => (
+          <div className="warning-message" role="status" key={warning}>
+            {warning}
+          </div>
+        ))}
 
         <div className="preview-content">
           <div className="preview-section">

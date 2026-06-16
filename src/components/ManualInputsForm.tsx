@@ -3,6 +3,9 @@ import { useFacilityStore } from '../store/facilityStore';
 import type { FacilityData } from '../types';
 import '../styles/components.css';
 
+const MAX_TEXT_LENGTH = 120;
+const MAX_LONG_TEXT_LENGTH = 300;
+
 export const ManualInputsForm: React.FC = () => {
   const { facilityData, updateManualInput } = useFacilityStore();
 
@@ -18,6 +21,13 @@ export const ManualInputsForm: React.FC = () => {
     const numericValue = value === '' ? undefined : Number(value);
     handleChange(field, Number.isFinite(numericValue) ? numericValue : undefined);
   };
+
+  const currentCensusError =
+    facilityData.currentCensus !== undefined && facilityData.currentCensus < 0
+      ? 'Current census cannot be negative.'
+      : facilityData.currentCensus !== undefined && facilityData.currentCensus > facilityData.censusCapacity
+        ? `Current census cannot exceed certified capacity of ${facilityData.censusCapacity}.`
+        : null;
 
   return (
     <div className="manual-inputs-container">
@@ -35,6 +45,7 @@ export const ManualInputsForm: React.FC = () => {
               value={facilityData.emr || ''}
               onChange={(e) => handleChange('emr', e.target.value)}
               className="form-input"
+              maxLength={MAX_TEXT_LENGTH}
             />
           </div>
 
@@ -44,10 +55,19 @@ export const ManualInputsForm: React.FC = () => {
               id="currentCensus"
               type="number"
               placeholder="e.g., 112"
-              value={facilityData.currentCensus || ''}
+              value={facilityData.currentCensus ?? ''}
               onChange={(e) => handleNumberChange('currentCensus', e.target.value)}
               className="form-input"
+              min={0}
+              max={facilityData.censusCapacity}
+              aria-invalid={Boolean(currentCensusError)}
+              aria-describedby={currentCensusError ? 'current-census-error' : undefined}
             />
+            {currentCensusError && (
+              <small id="current-census-error" className="field-error" role="alert">
+                {currentCensusError}
+              </small>
+            )}
           </div>
 
           <div className="form-group">
@@ -59,6 +79,7 @@ export const ManualInputsForm: React.FC = () => {
               value={facilityData.patientType || ''}
               onChange={(e) => handleChange('patientType', e.target.value)}
               className="form-input"
+              maxLength={MAX_TEXT_LENGTH}
             />
           </div>
 
@@ -71,6 +92,7 @@ export const ManualInputsForm: React.FC = () => {
               value={facilityData.customName || ''}
               onChange={(e) => handleChange('customName', e.target.value || undefined)}
               className="form-input"
+              maxLength={MAX_TEXT_LENGTH}
             />
             <small>This will override the official facility name in the report</small>
           </div>
@@ -98,6 +120,7 @@ export const ManualInputsForm: React.FC = () => {
               value={facilityData.previousPerformance || ''}
               onChange={(e) => handleChange('previousPerformance', e.target.value)}
               className="form-input"
+              maxLength={MAX_LONG_TEXT_LENGTH}
             />
           </div>
 
@@ -110,6 +133,7 @@ export const ManualInputsForm: React.FC = () => {
               value={facilityData.medicalCoverage || ''}
               onChange={(e) => handleChange('medicalCoverage', e.target.value)}
               className="form-input"
+              maxLength={MAX_LONG_TEXT_LENGTH}
             />
           </div>
         </div>

@@ -11,6 +11,8 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   const valueX = marginX + labelWidth;
   const valueWidth = contentWidth - labelWidth;
   const lineHeight = 6;
+  const footerY = pageHeight - 10;
+  const contentBottomY = pageHeight - 20;
   let yPosition = 35;
 
   const formatRating = (rating?: number) => rating ? `${rating}/5` : 'N/A';
@@ -23,7 +25,29 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
     facilityData.strEDVisit !== undefined ||
     facilityData.ltEDVisit !== undefined;
 
+  const addFooter = () => {
+    doc.setTextColor(150, 150, 150);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(
+      `Generated on ${new Date().toLocaleDateString()} | Powered by INFINITE Health Technology Platform`,
+      15,
+      footerY
+    );
+  };
+
+  const addPageIfNeeded = (requiredHeight: number) => {
+    if (yPosition + requiredHeight <= contentBottomY) {
+      return;
+    }
+
+    addFooter();
+    doc.addPage();
+    yPosition = 20;
+  };
+
   const addSectionTitle = (title: string) => {
+    addPageIfNeeded(14);
     yPosition += 6;
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
@@ -36,6 +60,8 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
     const displayValue = value === undefined || value === '' ? 'N/A' : String(value);
     const wrappedValue = doc.splitTextToSize(displayValue, valueWidth);
     const rowHeight = Math.max(lineHeight, wrappedValue.length * lineHeight);
+
+    addPageIfNeeded(rowHeight);
 
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
@@ -90,6 +116,7 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   }
 
   // Medicare Link Section
+  addPageIfNeeded(22);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   yPosition += 6;
@@ -102,14 +129,7 @@ export const generatePDF = async (facilityData: FacilityData): Promise<void> => 
   const wrappedUrl = doc.splitTextToSize(medicareUrl, contentWidth);
   doc.textWithLink(wrappedUrl[0], marginX, yPosition, { url: medicareUrl });
 
-  // Footer
-  doc.setTextColor(150, 150, 150);
-  doc.setFontSize(8);
-  doc.text(
-    `Generated on ${new Date().toLocaleDateString()} | Powered by INFINITE Health Technology Platform`,
-    15,
-    pageHeight - 10
-  );
+  addFooter();
 
   // Download PDF
   doc.save(`facility-assessment-${facilityData.ccn}.pdf`);
